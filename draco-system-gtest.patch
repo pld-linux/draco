@@ -1,0 +1,76 @@
+From 887cea73f798ab4b8947ed55f600fdfddc263915 Mon Sep 17 00:00:00 2001
+From: "Benjamin A. Beasley" <code@musicinmybrain.net>
+Date: Mon, 16 Jan 2023 21:48:15 -0500
+Subject: [PATCH] Use system gtest
+
+---
+ cmake/draco_tests.cmake | 29 ++++-------------------------
+ 1 file changed, 4 insertions(+), 25 deletions(-)
+
+diff --git a/cmake/draco_tests.cmake b/cmake/draco_tests.cmake
+index 2d7f05e..b0a2977 100644
+--- a/cmake/draco_tests.cmake
++++ b/cmake/draco_tests.cmake
+@@ -106,37 +106,8 @@
+ 
+ macro(draco_setup_test_targets)
+   if(DRACO_TESTS)
+-    draco_setup_googletest()
+-
+-    if(NOT (EXISTS ${draco_gtest_all} AND EXISTS ${draco_gtest_main}))
+-      message(FATAL_ERROR "googletest missing, run git submodule update --init")
+-    endif()
+-
+-    list(APPEND draco_test_defines GTEST_HAS_PTHREAD=0)
+-
+-    draco_add_library(
+-      TEST
+-      NAME draco_test_common
+-      TYPE STATIC
+-      SOURCES ${draco_test_common_sources}
+-      DEFINES ${draco_defines} ${draco_test_defines}
+-      INCLUDES ${draco_test_include_paths})
+-
+-    draco_add_library(
+-      TEST
+-      NAME draco_gtest
+-      TYPE STATIC
+-      SOURCES ${draco_gtest_all}
+-      DEFINES ${draco_defines} ${draco_test_defines}
+-      INCLUDES ${draco_test_include_paths})
+-
+-    draco_add_library(
+-      TEST
+-      NAME draco_gtest_main
+-      TYPE STATIC
+-      SOURCES ${draco_gtest_main}
+-      DEFINES ${draco_defines} ${draco_test_defines}
+-      INCLUDES ${draco_test_include_paths})
++    find_package(GTest REQUIRED)
++    list(APPEND draco_test_include_paths ${draco_include_paths})
+ 
+     set(DRACO_TEST_DATA_DIR "${draco_root}/testdata")
+     set(DRACO_TEST_TEMP_DIR "${draco_build}/draco_test_temp")
+@@ -154,8 +125,7 @@
+       SOURCES ${draco_test_sources}
+       DEFINES ${draco_defines} ${draco_test_defines}
+       INCLUDES ${draco_test_include_paths}
+-      LIB_DEPS ${draco_dependency} draco_gtest draco_gtest_main
+-               draco_test_common)
++      LIB_DEPS ${draco_dependency} GTest::gtest GTest::gtest_main)
+ 
+     draco_add_executable(
+       TEST
+@@ -163,8 +133,7 @@
+       SOURCES ${draco_factory_test_sources}
+       DEFINES ${draco_defines} ${draco_test_defines}
+       INCLUDES ${draco_test_include_paths}
+-      LIB_DEPS ${draco_dependency} draco_gtest draco_gtest_main
+-               draco_test_common)
++      LIB_DEPS ${draco_dependency} GTest::gtest GTest::gtest_main)
+ 
+ 
+   endif()
+-- 
+2.38.1
+
