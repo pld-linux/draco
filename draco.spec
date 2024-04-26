@@ -1,18 +1,29 @@
+# TODO: finish trancoder:
+# - package tinygltf and pass -DDRACO_TINYGLTF_PATH (or use submodule)
+# - patch to use C++ std::filesystem instead of ghc::filesystem (aka gulrak/filesystem / -DDRACO_FILESYSTEM_PATH)
+#
+# Conditional build:
+%bcond_with	transcoder	# transcoding support
+
 Summary:	Draco 3D graphics compression library
 Summary(pl.UTF-8):	Draco - biblioteka kompresji grafiki 3D
 Name:		draco
-Version:	1.5.6
+Version:	1.5.7
 Release:	1
 License:	Apache v2.0
 Group:		Libraries
 #Source0Download: https://github.com/google/draco/releases
 Source0:	https://github.com/google/draco/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	dbe3a9e286ee5b79016470349d78b2a3
+# Source0-md5:	b91def257264152be35c62f82f805d25
 Patch0:		%{name}-system-gtest.patch
 URL:		https://github.com/google/draco
 BuildRequires:	cmake >= 3.12
 BuildRequires:	gtest-devel
 BuildRequires:	libstdc++-devel
+%if %{with transcoder}
+BuildRequires:	eigen3
+BuildRequires:	libstdc++-devel >= 6:7
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -81,7 +92,12 @@ Statyczna biblioteka draco.
 %build
 install -d build
 cd build
-%cmake ..
+%cmake .. \
+%if %{with transcoder}
+	-DDRACO_EIGEN_PATH=/usr/include/eigen3 \
+	-DDRACO_TINYGLTF_PATH=TODO:TinyGLTF:or_use_submodule \
+	-DDRACO_TRANSCODER_SUPPORTED=ON
+%endif
 
 %{__make}
 
@@ -105,8 +121,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS README.md
 %attr(755,root,root) %{_bindir}/draco_decoder
 %attr(755,root,root) %{_bindir}/draco_encoder
+%if %{with transcoder}
+%attr(755,root,root) %{_bindir}/draco_simplifier
+%attr(755,root,root) %{_bindir}/draco_transcoder
+%endif
 %attr(755,root,root) %{_libdir}/libdraco.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdraco.so.8
+%attr(755,root,root) %ghost %{_libdir}/libdraco.so.9
 
 %files devel
 %defattr(644,root,root,755)
