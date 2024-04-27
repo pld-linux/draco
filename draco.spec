@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_with	transcoder	# transcoding support
+%bcond_without	transcoder	# transcoding support
 
 Summary:	Draco 3D graphics compression library
 Summary(pl.UTF-8):	Draco - biblioteka kompresji grafiki 3D
