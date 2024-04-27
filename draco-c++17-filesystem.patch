@@ -1,0 +1,32 @@
+--- draco-1.5.7/src/draco/io/file_writer_utils.cc.orig	2024-01-17 21:42:36.000000000 +0100
++++ draco-1.5.7/src/draco/io/file_writer_utils.cc	2024-04-27 08:48:56.088378500 +0200
+@@ -8,7 +8,7 @@
+ #include "draco/draco_features.h"
+ 
+ #ifdef DRACO_TRANSCODER_SUPPORTED
+-#include "ghc/filesystem.hpp"
++#include <filesystem>
+ #endif  // DRACO_TRANSCODER_SUPPORTED
+ 
+ namespace draco {
+@@ -64,8 +64,8 @@ bool CheckAndCreatePathForFile(const std
+   SplitPathPrivate(filename, &path, &basename);
+ 
+ #ifdef DRACO_TRANSCODER_SUPPORTED
+-  const ghc::filesystem::path ghc_path(path);
+-  ghc::filesystem::create_directories(ghc_path);
++  const std::filesystem::path ghc_path(path);
++  std::filesystem::create_directories(ghc_path);
+ #endif  // DRACO_TRANSCODER_SUPPORTED
+   return DirectoryExists(path);
+ }
+--- draco-1.5.7/cmake/draco_build_definitions.cmake.orig	2024-01-17 21:42:36.000000000 +0100
++++ draco-1.5.7/cmake/draco_build_definitions.cmake	2024-04-27 08:49:54.411395871 +0200
+@@ -70,7 +70,6 @@ macro(draco_set_build_definitions)
+ 
+   if(DRACO_TRANSCODER_SUPPORTED)
+     draco_setup_eigen()
+-    draco_setup_filesystem()
+     draco_setup_tinygltf()
+ 
+ 

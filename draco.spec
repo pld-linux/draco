@@ -1,6 +1,3 @@
-# TODO: finish trancoder:
-# - package tinygltf and pass -DDRACO_TINYGLTF_PATH (or use submodule)
-# - patch to use C++ std::filesystem instead of ghc::filesystem (aka gulrak/filesystem / -DDRACO_FILESYSTEM_PATH)
 #
 # Conditional build:
 %bcond_with	transcoder	# transcoding support
@@ -16,6 +13,8 @@ Group:		Libraries
 Source0:	https://github.com/google/draco/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	b91def257264152be35c62f82f805d25
 Patch0:		%{name}-system-gtest.patch
+Patch1:		%{name}-c++17-filesystem.patch
+Patch2:		%{name}-tinygltf.patch
 URL:		https://github.com/google/draco
 BuildRequires:	cmake >= 3.12
 BuildRequires:	gtest-devel
@@ -23,6 +22,8 @@ BuildRequires:	libstdc++-devel
 %if %{with transcoder}
 BuildRequires:	eigen3
 BuildRequires:	libstdc++-devel >= 6:7
+# 2.8.8 added GetFileSizeInBytes in struct FsCallbacks, tinygltf patch adjusts code for it
+BuildRequires:	tinygltf-devel >= 2.8.8
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -88,6 +89,8 @@ Statyczna biblioteka draco.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 install -d build
@@ -95,8 +98,9 @@ cd build
 %cmake .. \
 %if %{with transcoder}
 	-DDRACO_EIGEN_PATH=/usr/include/eigen3 \
-	-DDRACO_TINYGLTF_PATH=TODO:TinyGLTF:or_use_submodule \
+	-DDRACO_TINYGLTF_PATH=/usr/include \
 	-DDRACO_TRANSCODER_SUPPORTED=ON
+# -DDRACO_SIMPLIFIER_SUPPORTED=ON? missing sources as of 1.5.7
 %endif
 
 %{__make}
@@ -109,6 +113,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__mv} $RPM_BUILD_ROOT%{_bindir}/draco_decoder{-%{version},}
 %{__mv} $RPM_BUILD_ROOT%{_bindir}/draco_encoder{-%{version},}
+%{__mv} $RPM_BUILD_ROOT%{_bindir}/draco_transcoder{-%{version},}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -122,7 +127,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/draco_decoder
 %attr(755,root,root) %{_bindir}/draco_encoder
 %if %{with transcoder}
-%attr(755,root,root) %{_bindir}/draco_simplifier
 %attr(755,root,root) %{_bindir}/draco_transcoder
 %endif
 %attr(755,root,root) %{_libdir}/libdraco.so.*.*.*
