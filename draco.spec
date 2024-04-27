@@ -15,6 +15,7 @@ Source0:	https://github.com/google/draco/archive/%{version}/%{name}-%{version}.t
 Patch0:		%{name}-system-gtest.patch
 Patch1:		%{name}-c++17-filesystem.patch
 Patch2:		%{name}-tinygltf.patch
+Patch3:		%{name}-includes.patch
 URL:		https://github.com/google/draco
 BuildRequires:	cmake >= 3.12
 BuildRequires:	gtest-devel
@@ -91,6 +92,7 @@ Statyczna biblioteka draco.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 install -d build
